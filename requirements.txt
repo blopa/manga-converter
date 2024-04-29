@@ -1,0 +1,3 @@
+manga_ocr>=0.1.0
+Pillow>=8.2.0
+easyocr>=1.7.1
