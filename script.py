@@ -14,6 +14,6 @@ def process_all_images(source_folder, output_folder):
             do_task(image_path, final_output_image_path)
 
 # Usage example
-source_folder = 'manga'
+source_folder = 'test'
 output_folder = 'output'
 process_all_images(source_folder, output_folder)
