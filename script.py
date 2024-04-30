@@ -28,7 +28,6 @@ def extract_images_from_archive(archive_path, output_folder, archive_type):
             image = Image.open(archive.open(filename))
             final_output_image_path = os.path.join(output_folder, 'processed_' + os.path.splitext(filename)[0] + '.png')
             process_image(image, final_output_image_path, output_folder)
-#             image.save(os.path.join(output_folder, os.path.basename(filename)))
 
 def extract_images_from_epub(epub_path, output_folder):
     book = epub.read_epub(epub_path)
@@ -37,17 +36,17 @@ def extract_images_from_epub(epub_path, output_folder):
             image = Image.open(io.BytesIO(item.get_content()))
             image.save(os.path.join(output_folder, item.file_name))
 
-def process_image(base_image, final_output_image_path, output_folder):
+def process_image(image, final_output_image_path, output_folder):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
-    do_task(base_image, final_output_image_path)
+    do_task(image, final_output_image_path)
 
 def process_single_file(file_path, output_folder):
     if file_path.lower().endswith(('.png', '.jpg', '.jpeg')):
-        base_image = Image.open(file_path)
+        image = Image.open(file_path)
         filename = os.path.basename(file_path)
         final_output_image_path = os.path.join(output_folder, 'processed_' + os.path.splitext(filename)[0] + '.png')
-        process_image(base_image, final_output_image_path, output_folder)
+        process_image(image, final_output_image_path, output_folder)
     elif file_path.lower().endswith('.pdf'):
         extract_images_from_pdf(file_path, output_folder)
     elif file_path.lower().endswith('.cbz'):
