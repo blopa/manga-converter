@@ -17,7 +17,21 @@ def extract_images_from_pdf(pdf_path, output_folder):
             image = Image.open(io.BytesIO(base_image["image"]))
             image.save(os.path.join(output_folder, f'{i}_{xref}.png'))
 
+def pack_images_into_archive(processed_files, output_folder, archive_type, archive_name):
+    archive_path = os.path.join(output_folder, archive_name)
+    if archive_type == 'zip':
+        with zipfile.ZipFile(archive_path, 'w') as archive:
+            for file_path in processed_files:
+                archive.write(file_path, arcname=os.path.basename(file_path))
+    elif archive_type == 'rar':
+        # RAR file creation might require external tools like rarfile library interfacing with RAR executable
+        with rarfile.RarFile(archive_path, 'w') as archive:
+            for file_path in processed_files:
+                archive.add(file_path, arcname=os.path.basename(file_path))
+
 def extract_images_from_archive(archive_path, output_folder, archive_type):
+    processed_files = []
+
     if archive_type == 'zip':
         archive = zipfile.ZipFile(archive_path, 'r')
     else:
@@ -29,8 +43,12 @@ def extract_images_from_archive(archive_path, output_folder, archive_type):
                 image = Image.open(file)
                 if image.mode == 'RGBA':
                     image = image.convert('RGB')
-                final_output_image_path = os.path.join(output_folder, 'processed_' + os.path.splitext(filename)[0] + '.jpg')  # Note: saving as .jpg
+                final_output_image_path = os.path.join(output_folder, 'processed_' + os.path.splitext(filename)[0] + '.jpg')
                 process_image(image, final_output_image_path, output_folder)
+                print('Processed:', filename)
+                processed_files.append(final_output_image_path)
+
+    return processed_files
 
 def extract_images_from_epub(epub_path, output_folder):
     book = epub.read_epub(epub_path)
@@ -47,15 +65,16 @@ def process_image(image, final_output_image_path, output_folder):
     do_task(image, final_output_image_path)
 
 def process_single_file(file_path, output_folder):
+    filename = os.path.basename(file_path)
     if file_path.lower().endswith(('.png', '.jpg', '.jpeg')):
         image = Image.open(file_path)
-        filename = os.path.basename(file_path)
         final_output_image_path = os.path.join(output_folder, 'processed_' + os.path.splitext(filename)[0] + '.png')
         process_image(image, final_output_image_path, output_folder)
     elif file_path.lower().endswith('.pdf'):
         extract_images_from_pdf(file_path, output_folder)
     elif file_path.lower().endswith('.cbz'):
-        extract_images_from_archive(file_path, output_folder, 'zip')
+        processed_files = extract_images_from_archive(file_path, output_folder, 'zip')
+        pack_images_into_archive(processed_files, output_folder, 'zip', 'processed_' + os.path.splitext(filename)[0] + '.cbz')
     elif file_path.lower().endswith('.cbr'):
         extract_images_from_archive(file_path, output_folder, 'rar')
     elif file_path.lower().endswith('.epub'):
