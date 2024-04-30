@@ -20,14 +20,17 @@ def extract_images_from_pdf(pdf_path, output_folder):
 def extract_images_from_archive(archive_path, output_folder, archive_type):
     if archive_type == 'zip':
         archive = zipfile.ZipFile(archive_path, 'r')
-    else:  # rar
+    else:
         archive = rarfile.RarFile(archive_path, 'r')
 
     for filename in archive.namelist():
         if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-            image = Image.open(archive.open(filename))
-            final_output_image_path = os.path.join(output_folder, 'processed_' + os.path.splitext(filename)[0] + '.png')
-            process_image(image, final_output_image_path, output_folder)
+            with archive.open(filename) as file:
+                image = Image.open(file)
+                if image.mode == 'RGBA':
+                    image = image.convert('RGB')
+                final_output_image_path = os.path.join(output_folder, 'processed_' + os.path.splitext(filename)[0] + '.jpg')  # Note: saving as .jpg
+                process_image(image, final_output_image_path, output_folder)
 
 def extract_images_from_epub(epub_path, output_folder):
     book = epub.read_epub(epub_path)
@@ -39,6 +42,8 @@ def extract_images_from_epub(epub_path, output_folder):
 def process_image(image, final_output_image_path, output_folder):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
+    if image.mode == 'RGBA':
+        image = image.convert('RGB')
     do_task(image, final_output_image_path)
 
 def process_single_file(file_path, output_folder):

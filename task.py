@@ -1,9 +1,13 @@
 import easyocr
 import json
 from PIL import Image, ImageDraw, ImageFont
+import numpy as np
 
 def extract_text_from_manga(base_image):
     reader = easyocr.Reader(['en'])
+    if isinstance(base_image, Image.Image):
+        base_image = np.array(base_image)
+
     results = reader.readtext(base_image, detail=1)
     extracted_data = []
     for result in results:
@@ -71,15 +75,22 @@ def create_image_with_flipped_horizontal(base_image, data):
     return new_image
 
 def overlay_flipped_with_transparent(base_image, transparent_image, final_output_image_path='final_output_image.png'):
-    flipped_base_image = base_image.transpose(Image.FLIP_LEFT_RIGHT)
+    flipped_base_image = base_image.transpose(Image.FLIP_LEFT_RIGHT).convert('RGBA')
 
     if transparent_image.mode != 'RGBA':
         transparent_image = transparent_image.convert('RGBA')
 
-    combined_image = Image.alpha_composite(flipped_base_image.convert('RGBA'), transparent_image)
+    combined_image = Image.alpha_composite(flipped_base_image, transparent_image)
+
+    if final_output_image_path.lower().endswith('.jpg') or final_output_image_path.lower().endswith('.jpeg'):
+        combined_image = combined_image.convert('RGB')
+
     combined_image.save(final_output_image_path)
 
 def do_task(base_image, final_output_image_path):
+    if isinstance(base_image, str):
+        base_image = Image.open(base_image)
     extracted_text = extract_text_from_manga(base_image)
+    base_image = Image.open(base_image) if isinstance(base_image, str) else base_image
     transparent_image = create_image_with_flipped_horizontal(base_image, extracted_text)
     overlay_flipped_with_transparent(base_image, transparent_image, final_output_image_path)
