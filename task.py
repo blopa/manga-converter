@@ -79,8 +79,7 @@ def overlay_flipped_with_transparent(base_image, transparent_image, final_output
     combined_image = Image.alpha_composite(flipped_base_image.convert('RGBA'), transparent_image)
     combined_image.save(final_output_image_path)
 
-def do_task(image_path, final_output_image_path):
-    base_image = Image.open(image_path)  # Load image once here
+def do_task(base_image, final_output_image_path):
     extracted_text = extract_text_from_manga(base_image)
     transparent_image = create_image_with_flipped_horizontal(base_image, extracted_text)
     overlay_flipped_with_transparent(base_image, transparent_image, final_output_image_path)
