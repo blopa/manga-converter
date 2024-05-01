@@ -56,7 +56,7 @@ def create_image_with_text(base_image_path, data):
     new_image.save('output_image.png')
     new_image.show()
 
-def create_image_with_flipped_horizontal(base_image, data):
+def create_image_with_inverted_text_placement(base_image, data):
     width, height = base_image.size
     new_image = Image.new('RGBA', (width, height), (255, 255, 255, 0))
 
@@ -92,5 +92,5 @@ def do_task(base_image, final_output_image_path):
         base_image = Image.open(base_image)
     extracted_text = extract_text_from_manga(base_image)
     base_image = Image.open(base_image) if isinstance(base_image, str) else base_image
-    transparent_image = create_image_with_flipped_horizontal(base_image, extracted_text)
+    transparent_image = create_image_with_inverted_text_placement(base_image, extracted_text)
     overlay_flipped_with_transparent(base_image, transparent_image, final_output_image_path)
