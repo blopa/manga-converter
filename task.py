@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import torch
 
-def extract_text_from_manga(base_image, lang='en'):
+def extract_text_from_manga(base_image, lang):
     reader = easyocr.Reader([lang], gpu=torch.cuda.is_available())
     try:
         if isinstance(base_image, Image.Image):

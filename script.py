@@ -28,12 +28,11 @@ def pack_images_into_archive(processed_files, output_folder, archive_type, archi
             for file_path in processed_files:
                 archive.write(file_path, arcname=os.path.basename(file_path))
     elif archive_type == 'rar':
-        # RAR file creation might require external tools like rarfile library interfacing with RAR executable
         with rarfile.RarFile(archive_path, 'w') as archive:
             for file_path in processed_files:
                 archive.add(file_path, arcname=os.path.basename(file_path))
 
-def extract_images_from_archive(archive_path, output_folder, archive_type):
+def extract_images_from_archive(archive_path, output_folder, archive_type, lang):
     processed_files = []
 
     if archive_type == 'zip':
@@ -48,9 +47,7 @@ def extract_images_from_archive(archive_path, output_folder, archive_type):
                 if image.mode == 'RGBA':
                     image = image.convert('RGB')
                 final_output_image_path = os.path.join(output_folder, 'processed_' + os.path.splitext(filename)[0] + '.jpg')
-                print('Processing page', filename)
-                process_image(image, final_output_image_path, output_folder)
-                print('Processed:', archive_path)
+                process_image(image, final_output_image_path, output_folder, lang)
                 processed_files.append(final_output_image_path)
 
     return processed_files
@@ -62,7 +59,8 @@ def extract_images_from_epub(epub_path, output_folder):
             image = Image.open(io.BytesIO(item.get_content()))
             image.save(os.path.join(output_folder, item.file_name))
 
-def process_image(image, final_output_image_path, output_folder, lang='en'):
+def process_image(image, final_output_image_path, output_folder, lang):
+    print('Processing image', final_output_image_path)
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     if image.mode == 'RGBA':
@@ -70,41 +68,43 @@ def process_image(image, final_output_image_path, output_folder, lang='en'):
     do_task(image, final_output_image_path, lang)
     gc.collect()
 
-def process_single_file(file_path, output_folder):
+def process_single_file(file_path, output_folder, lang):
     filename = os.path.basename(file_path)
     if file_path.lower().endswith(('.png', '.jpg', '.jpeg')):
         image = Image.open(file_path)
         final_output_image_path = os.path.join(output_folder, 'processed_' + os.path.splitext(filename)[0] + '.png')
-        process_image(image, final_output_image_path, output_folder)
+        process_image(image, final_output_image_path, output_folder, lang)
     elif file_path.lower().endswith('.pdf'):
         extract_images_from_pdf(file_path, output_folder)
     elif file_path.lower().endswith('.cbz'):
-        processed_files = extract_images_from_archive(file_path, output_folder, 'zip')
+        processed_files = extract_images_from_archive(file_path, output_folder, 'zip', lang)
         pack_images_into_archive(processed_files, output_folder, 'zip', 'processed_' + os.path.splitext(filename)[0] + '.cbz')
     elif file_path.lower().endswith('.cbr'):
-        extract_images_from_archive(file_path, output_folder, 'rar')
+        extract_images_from_archive(file_path, output_folder, 'rar', lang)
     elif file_path.lower().endswith('.epub'):
         extract_images_from_epub(file_path, output_folder)
     else:
         raise ValueError("The file specified is not a supported image file.")
 
-def process_all_images(source_folder, output_folder):
+def process_all_images(source_folder, output_folder, lang):
     for filename in os.listdir(source_folder):
         file_path = os.path.join(source_folder, filename)
-        process_single_file(file_path, output_folder)
+        process_single_file(file_path, output_folder, lang)
 
 def main():
     parser = argparse.ArgumentParser(description='Process an image or all images in a folder.')
     parser.add_argument('--source', required=True, help='Source image file or folder with images.')
     parser.add_argument('--output', help='Optional output folder for processed images. Defaults to the same directory as the source or a subfolder in the source directory.')
+    parser.add_argument('--lang', default='en', help='Language for processing. Defaults to English (en).')
 
     args = parser.parse_args()
     output_folder = args.output or (os.path.join(args.source, 'output') if os.path.isdir(args.source) else os.path.dirname(args.source))
+    lang = args.lang
 
     if os.path.isdir(args.source):
-        process_all_images(args.source, output_folder)
+        process_all_images(args.source, output_folder, lang)
     elif os.path.isfile(args.source):
-        process_single_file(args.source, output_folder)
+        process_single_file(args.source, output_folder, lang)
     else:
         raise ValueError("The specified source is neither a file nor a directory.")
 

@@ -21,12 +21,12 @@ pip install --index-url https://download.pytorch.org/whl/cu121 -r requirements.t
 PS: I don't have a device with CUDA myself, but this should technically work. Try it and let me know.
 
 ## Usage
-To use the script, you need to specify the source directory (or file) containing the manga images and an optional output directory where the processed comics will be saved. If the output directory is not specified, the script will create a default output directory in the same location as the source.
+To use the script, you need to specify the source directory (or file) containing the manga images, an optional output directory where the processed comics will be saved, and the language for processing. The language defaults to English (`en`) if not specified.
 
 Run the script with the following command:
 
 ```bash
-python script.py --output path_to_your_output --source path_to_your_source
+python script.py --output path_to_your_output --source path_to_your_source --lang=en
 ```
 
 Examples:
@@ -34,16 +34,16 @@ Examples:
 - Converting a folder of manga pages:
 
 ```bash
-python script.py --output comic_folder --source manga_folder
+python script.py --output comic_folder --source manga_folder --lang=ja
 ```
 
 - Converting a single manga page:
 
 ```bash
-python script.py --output comic_folder --source manga_page.jpg
+python script.py --output comic_folder --source manga_page.jpg --lang=en
 ```
 
-The above command will process page1.png and place the converted comic page in the same directory as the source file.
+This allows the script to handle different language settings for tasks like text recognition or other language-specific processing requirements.
 
 ## Contributing
 Feel free to fork this repository and submit pull requests. You can also open an issue if you find any bugs or have suggestions for further enhancements.
