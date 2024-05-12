@@ -8,6 +8,7 @@ import rarfile
 from ebooklib import epub
 from task import do_task
 import sys
+import gc
 
 sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding='utf-8', errors='replace')
 
@@ -61,12 +62,13 @@ def extract_images_from_epub(epub_path, output_folder):
             image = Image.open(io.BytesIO(item.get_content()))
             image.save(os.path.join(output_folder, item.file_name))
 
-def process_image(image, final_output_image_path, output_folder):
+def process_image(image, final_output_image_path, output_folder, lang='en'):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     if image.mode == 'RGBA':
         image = image.convert('RGB')
-    do_task(image, final_output_image_path)
+    do_task(image, final_output_image_path, lang)
+    gc.collect()
 
 def process_single_file(file_path, output_folder):
     filename = os.path.basename(file_path)

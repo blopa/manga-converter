@@ -18,6 +18,8 @@ If you have CUDA installed and want to use GPU capabilities, append the --index-
 pip install --index-url https://download.pytorch.org/whl/cu121 -r requirements.txt
 ```
 
+PS: I don't have a device with CUDA myself, but this should technically work. Try it and let me know.
+
 ## Usage
 To use the script, you need to specify the source directory (or file) containing the manga images and an optional output directory where the processed comics will be saved. If the output directory is not specified, the script will create a default output directory in the same location as the source.
 

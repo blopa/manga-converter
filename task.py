@@ -2,13 +2,18 @@ import easyocr
 import json
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
+import torch
 
-def extract_text_from_manga(base_image):
-    reader = easyocr.Reader(['en'])
-    if isinstance(base_image, Image.Image):
-        base_image = np.array(base_image)
-
-    results = reader.readtext(base_image, detail=1)
+def extract_text_from_manga(base_image, lang='en'):
+    reader = easyocr.Reader([lang], gpu=torch.cuda.is_available())
+    try:
+        if isinstance(base_image, Image.Image):
+            base_image = np.array(base_image)
+        results = reader.readtext(base_image, detail=1)
+    except Exception as e:
+        print(f"Failed to process image with EasyOCR: {e}")
+        results = []
+    
     extracted_data = []
     for result in results:
         data = {
@@ -87,10 +92,10 @@ def overlay_flipped_with_transparent(base_image, transparent_image, final_output
 
     combined_image.save(final_output_image_path)
 
-def do_task(base_image, final_output_image_path):
+def do_task(base_image, final_output_image_path, lang='en'):
     if isinstance(base_image, str):
         base_image = Image.open(base_image)
-    extracted_text = extract_text_from_manga(base_image)
+    extracted_text = extract_text_from_manga(base_image, lang)
     base_image = Image.open(base_image) if isinstance(base_image, str) else base_image
     transparent_image = create_image_with_inverted_text_placement(base_image, extracted_text)
     overlay_flipped_with_transparent(base_image, transparent_image, final_output_image_path)
