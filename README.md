@@ -1,15 +1,21 @@
 # Manga to Comics Converter
-
-This Python script converts manga pages into Western comic-style pages by reversing the reading direction, among other transformations.
+This Python 3 script converts manga pages into Western comic-style pages by reversing the reading direction, among other transformations.
 
 ## Installation
-
 First, clone the repository or download the files to your local machine.
 
-Before running the script, you need to install the required Python libraries. Run the following command in your terminal:
+Before running the script, you need to install the required Python libraries. If you have CUDA available and wish to leverage GPU acceleration, you should specify a custom index URL when installing the packages. Otherwise, use the standard installation command. 
 
+### Standard Installation
 ```bash
 pip install -r requirements.txt
+```
+
+## Installation with CUDA
+If you have CUDA installed and want to use GPU capabilities, append the --index-url option with the appropriate URL for CUDA-optimized packages:
+
+```bash
+pip install --index-url https://download.pytorch.org/whl/cu121 -r requirements.txt
 ```
 
 ## Usage
@@ -18,7 +24,7 @@ To use the script, you need to specify the source directory (or file) containing
 Run the script with the following command:
 
 ```bash
-python3 script.py --source path_to_your_source --output path_to_your_output
+python script.py --output path_to_your_output --source path_to_your_source
 ```
 
 Examples:
@@ -26,13 +32,13 @@ Examples:
 - Converting a folder of manga pages:
 
 ```bash
-python3 script.py --source manga_folder --output comic_folder
+python script.py --output comic_folder --source manga_folder
 ```
 
 - Converting a single manga page:
 
 ```bash
-python3 script.py --source manga_page.jpg --output comic_folder
+python script.py --output comic_folder --source manga_page.jpg
 ```
 
 The above command will process page1.png and place the converted comic page in the same directory as the source file.

@@ -7,6 +7,9 @@ import zipfile
 import rarfile
 from ebooklib import epub
 from task import do_task
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding='utf-8', errors='replace')
 
 def extract_images_from_pdf(pdf_path, output_folder):
     doc = fitz.open(pdf_path)
@@ -44,8 +47,9 @@ def extract_images_from_archive(archive_path, output_folder, archive_type):
                 if image.mode == 'RGBA':
                     image = image.convert('RGB')
                 final_output_image_path = os.path.join(output_folder, 'processed_' + os.path.splitext(filename)[0] + '.jpg')
+                print('Processing page', filename)
                 process_image(image, final_output_image_path, output_folder)
-                print('Processed:', filename)
+                print('Processed:', archive_path)
                 processed_files.append(final_output_image_path)
 
     return processed_files
